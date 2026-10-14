@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="same-origin">
+  <meta name="theme-color" content="#f8f8fc">
+  <title>لوحة الإدارة | P90 SHOP</title>
+  <link rel="icon" type="image/png" href="/P90-LOGO-02.png">
+  <link rel="stylesheet" href="/admin.css"><script src="/admin.js" defer></script>
+</head>
+<body>
+  <div class="admin-bg"></div>
+  <header class="admin-header"><a href="/" class="admin-brand"><img src="/P90-LOGO-01.png" alt="P90 SHOP" onerror="this.hidden=true"><span>P90 <small>ADMIN</small></span></a><div class="header-right"><a href="/" class="view-shop" target="_blank" rel="noopener">عرض المتجر ↗</a><button id="logoutButton" class="button subtle" hidden>تسجيل الخروج</button></div></header>
+  <main class="admin-main">
+    <section id="loginPanel" class="login-panel" hidden>
+      <div class="login-symbol">P90</div><span class="eyebrow">PRIVATE WORKSPACE</span><h1>أهلًا بعودتك.</h1><p>سجّل الدخول للوصول إلى المنتجات والطلبات.</p>
+      <form id="loginForm"><label for="adminPassword">كلمة مرور الأدمن</label><input id="adminPassword" type="password" autocomplete="current-password" required placeholder="اكتب كلمة المرور"><div id="loginError" class="error-text" hidden></div><button class="button primary full" id="loginSubmit" type="submit">دخول لوحة التحكم <span>↗</span></button></form>
+      <small class="secure-note">جلسة محمية — لا تضع توكن GitHub هنا.</small>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="welcome-row"><div><span class="eyebrow">P90 SHOP / CONTROL CENTER</span><h1>لوحة التحكم.</h1><p>إدارة المنتجات ومراجعة الطلبات من مكان واحد.</p></div><div class="welcome-mark">P<span>90</span><i>SHOP</i></div></div>
+      <div class="stats-grid"><article class="stat-card"><span>إجمالي المنتجات</span><strong id="statProducts">—</strong><small>المنتجات المعروضة في المتجر</small></article><article class="stat-card"><span>الطلبات الجديدة</span><strong id="statNewOrders">—</strong><small>في انتظار المراجعة</small></article><article class="stat-card"><span>إجمالي الطلبات</span><strong id="statOrders">—</strong><small>آخر 500 طلب</small></article></div>
+      <div class="tabbar"><button class="tab active" data-tab="productsPanel">المنتجات <span id="tabProductCount">0</span></button><button class="tab" data-tab="ordersPanel">الطلبات <span id="tabOrderCount">0</span></button><button id="refreshButton" class="refresh-button">تحديث البيانات ↻</button></div>
+      <div id="globalMessage" class="global-message" hidden></div>
+
+      <section id="productsPanel" class="panel active-panel">
+        <div class="panel-heading"><div><span class="eyebrow">CATALOG MANAGEMENT</span><h2 id="productFormHeading">إضافة منتج جديد</h2><p>الصور تُرفع إلى GitHub، وبيانات المنتج تُحفظ في قاعدة البيانات مع نسخة JSON احتياطية في المستودع.</p></div><button id="resetProductForm" class="button subtle">＋ منتج جديد</button></div>
+        <div class="product-editor-layout">
+          <form id="productForm" class="editor-form">
+            <input type="hidden" id="productId">
+            <div class="form-grid"><label class="admin-field"><span>اسم المنتج <i>*</i></span><input id="productTitle" maxlength="150" required placeholder="مثال: P90 Runner White"></label><label class="admin-field"><span>كود المنتج</span><input id="productCode" maxlength="30" dir="ltr" placeholder="P90-0001"><small>اتركه فارغًا لإنشاء كود تلقائي.</small></label><label class="admin-field"><span>السعر بالجنيه المصري <i>*</i></span><input id="productPrice" type="number" min="1" max="10000000" step="0.01" required placeholder="1499"></label><label class="admin-field"><span>المقاسات المتاحة <small>(اختياري)</small></span><input id="productSizes" placeholder="40, 41, 42, 43"><small>افصل بين المقاسات بفاصلة.</small></label></div>
+            <label class="admin-field"><span>وصف المنتج</span><textarea id="productDescription" rows="4" maxlength="5000" placeholder="الخامة، الاستخدام، اللون، أو أي تفاصيل مفيدة للعميل..."></textarea></label>
+            <div id="existingImagesArea" class="existing-images-area" hidden><span class="label-like">الصور الحالية — أزل التحديد للصورة التي تريد حذفها من المنتج</span><div id="existingImages" class="existing-images"></div></div>
+            <label class="upload-zone" for="productImages"><span class="upload-symbol">↑</span><strong>اسحب الصور إلى هنا أو اضغط للاختيار</strong><small>JPG أو PNG أو WebP أو AVIF — 3 ميجابايت للصورة، بحد أقصى 6 صور إجمالًا.</small><input id="productImages" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple></label>
+            <div id="newImagePreview" class="new-image-preview"></div>
+            <div id="productFormError" class="error-text" hidden></div><button class="button primary full" id="saveProductButton" type="submit">نشر التعديلات <span>↗</span></button><p class="form-hint">بعد الحفظ ستُحدّث قاعدة البيانات وملف <code>public/data/products.json</code> على GitHub. قد يحتاج ظهور التغيير على النسخة الثابتة إلى اكتمال نشر Cloudflare.</p>
+          </form>
+          <aside class="editor-side"><div class="side-title"><span>PRODUCTS</span><b id="sideProductCount">0 ITEMS</b></div><label class="side-search"><span>⌕</span><input id="adminProductSearch" type="search" placeholder="ابحث بالاسم أو الكود"></label><div id="adminProductList" class="admin-product-list"><div class="side-empty">لا توجد منتجات بعد.</div></div></aside>
+        </div>
+      </section>
+
+      <section id="ordersPanel" class="panel" hidden>
+        <div class="panel-heading"><div><span class="eyebrow">ORDER MANAGEMENT</span><h2>طلبات العملاء.</h2><p>افتح الطلب لمراجعة بيانات العميل والمنتجات، ثم حدّث الحالة.</p></div></div>
+        <div class="orders-toolbar"><label class="side-search"><span>⌕</span><input id="orderSearch" type="search" placeholder="ابحث بكود الطلب أو اسم العميل أو الهاتف"></label><select id="orderStatusFilter" aria-label="فلترة الحالة"><option value="all">كل الحالات</option><option value="new">جديد</option><option value="confirmed">مؤكد</option><option value="completed">مكتمل</option><option value="cancelled">ملغي</option></select></div>
+        <div id="ordersList" class="orders-list"><div class="side-empty">جاري تحميل الطلبات…</div></div>
+      </section>
+      <footer class="admin-footer"><span>P90 SHOP / ADMIN</span><span>المنتجات تُعرض للعامة، بيانات العملاء لا تظهر إلا بعد التحقق من جلسة الأدمن.</span></footer>
+    </section>
+  </main>
+  <div id="adminToast" class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

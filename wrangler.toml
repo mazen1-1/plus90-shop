@@ -1,0 +1,14 @@
+name = "plus90-shop"
+pages_build_output_dir = "./public"
+compatibility_date = "2026-10-14"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "plus90-shop"
+database_id = "PASTE_YOUR_D1_DATABASE_ID_HERE"
+
+[vars]
+# These are public configuration values, not secrets.
+GITHUB_OWNER = "YOUR_GITHUB_USERNAME"
+GITHUB_REPO = "YOUR_REPOSITORY_NAME"
+GITHUB_BRANCH = "main"

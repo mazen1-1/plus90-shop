@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f8fc">
+  <meta name="description" content="P90 SHOP — تسوق لأفضل الأحذية وبأفضل الأسعار.">
+  <meta name="robots" content="index,follow">
+  <title>P90 SHOP | تسوق لأفضل الأحذية وبأفضل الأسعار</title>
+  <link rel="icon" type="image/png" href="/P90-LOGO-02.png">
+  <link rel="apple-touch-icon" href="/P90-LOGO-02.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="P90 SHOP">
+  <meta property="og:title" content="P90 SHOP">
+  <meta property="og:description" content="تسوق لأفضل الأحذية وبأفضل الأسعار">
+  <!-- بعد النشر: استبدل الرابط التالي برابط موقعك النهائي، مع إبقاء اسم الصورة كما هو. -->
+  <meta property="og:image" content="https://YOUR-PROJECT.pages.dev/P90-LOGO-03.png">
+  <meta property="og:image:alt" content="P90 SHOP — تسوق لأفضل الأحذية وبأفضل الأسعار">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="page-texture" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="العودة إلى الصفحة الرئيسية">
+      <img src="/P90-LOGO-01.png" alt="P90 SHOP" class="brand-logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+      <span class="brand-fallback" hidden>P90<span>SHOP</span></span>
+    </a>
+    <div class="header-actions">
+      <label class="search-box" for="searchInput">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.4 4.4"></path></svg>
+        <input id="searchInput" type="search" placeholder="ابحث باسم الحذاء أو الكود" autocomplete="off">
+        <kbd>⌕</kbd>
+      </label>
+      <button class="cart-button" id="openCart" type="button" aria-label="فتح السلة">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>
+        <span>السلة</span><b id="cartCount">0</b>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section-wrap">
+      <div class="hero-copy">
+        <span class="eyebrow"><i></i> STEP INTO YOUR STYLE</span>
+        <h1>خطوتك الجاية<br><span>تستاهل الأفضل.</span></h1>
+        <p>اختار ستايلك من تشكيلتنا، واكتشف أحذية تجمع بين الراحة والشكل المميز والسعر المناسب.</p>
+        <a class="button button-primary" href="#products">اكتشف التشكيلة <span aria-hidden="true">↙</span></a>
+        <div class="hero-notes"><span><b>01</b> اختار اللي يناسبك</span><span><b>02</b> اطلب بسهولة على واتساب</span></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+        <div class="hero-tag tag-top">P90 / EVERYDAY</div>
+        <div class="hero-shape"><span>P</span><span>90</span></div>
+        <div class="hero-tag tag-bottom">OWN YOUR NEXT STEP <b>↗</b></div>
+        <div class="hero-spark spark-one"></div><div class="hero-spark spark-two"></div>
+      </div>
+    </section>
+
+    <section class="catalog section-wrap" id="products">
+      <div class="section-heading">
+        <div><span class="eyebrow">THE COLLECTION</span><h2>اختار حذاءك.</h2><p>تفاصيل واضحة، اختيار أسهل، وطلب على مزاجك.</p></div>
+        <div class="catalog-tools"><span class="products-count" id="productsCount">جاري تحميل المنتجات…</span><select id="sortSelect" aria-label="ترتيب المنتجات"><option value="newest">الأحدث أولاً</option><option value="price-low">السعر: الأقل أولاً</option><option value="price-high">السعر: الأعلى أولاً</option><option value="title">الاسم: أ–ي</option></select></div>
+      </div>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <div id="productGrid" class="product-grid" aria-live="polite">
+        <div class="loading-card"><span class="loader"></span><p>بنجهز التشكيلة ليك…</p></div>
+      </div>
+    </section>
+
+    <section class="bottom-banner section-wrap">
+      <div class="banner-mark">P90<span>SHOP</span></div>
+      <div><span class="eyebrow">YOUR STYLE. YOUR STEP.</span><h2>ستايلك يبدأ من هنا.</h2><p>اختار منتجك، راجع طلبك، وكمل بسهولة من خلال واتساب.</p></div>
+      <a href="#products" class="button button-light">شوف المنتجات <span>↗</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer section-wrap"><a href="/" class="footer-brand">P90 SHOP</a><span>تسوق لأفضل الأحذية وبأفضل الأسعار.</span><span>© <span id="yearNow"></span> P90 SHOP</span></footer>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-labelledby="cartTitle" aria-hidden="true">
+    <div class="drawer-head"><div><span class="eyebrow">YOUR SELECTION</span><h2 id="cartTitle">سلة المشتريات <span id="drawerCount">(0)</span></h2></div><button class="icon-button" type="button" id="closeCart" aria-label="إغلاق السلة">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer"><div class="total-line"><span>الإجمالي</span><strong id="cartTotal">0 ج.م</strong></div><p>الأسعار المعروضة بالجنيه المصري. يتم تأكيد الطلب معاك عبر واتساب.</p><button class="button button-primary button-full" id="goCheckout" type="button">إكمال الطلب <span>↗</span></button></div>
+  </aside>
+
+  <div class="modal-wrap" id="productModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="icon-button modal-close" type="button" data-close-modal aria-label="إغلاق">×</button>
+      <div class="modal-image"><img id="modalImage" src="" alt=""><span class="image-index" id="modalImageIndex"></span><div class="image-thumbs" id="modalThumbs"></div></div>
+      <div class="modal-info"><span class="eyebrow">P90 SELECTED</span><span class="product-code" id="modalCode"></span><h2 id="modalTitle"></h2><div class="modal-price" id="modalPrice"></div><p id="modalDescription"></p><div id="sizePickerWrap" class="size-picker-wrap" hidden><div class="field-label">المقاس</div><div id="sizePicker" class="size-picker"></div></div><label class="field-label" for="modalQty">الكمية</label><div class="qty-control"><button type="button" id="qtyMinus" aria-label="تقليل الكمية">−</button><input id="modalQty" type="number" min="1" max="10" value="1" inputmode="numeric"><button type="button" id="qtyPlus" aria-label="زيادة الكمية">+</button></div><button class="button button-primary button-full" id="addFromModal" type="button">أضف للسلة <span>＋</span></button><p class="micro-note">اختيارك محفوظ في السلة على هذا الجهاز.</p></div>
+    </section>
+  </div>
+
+  <div class="modal-wrap" id="checkoutModal" hidden>
+    <div class="modal-backdrop" data-close-checkout></div>
+    <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <button class="icon-button modal-close" type="button" data-close-checkout aria-label="إغلاق">×</button>
+      <span class="eyebrow">ALMOST THERE</span><h2 id="checkoutTitle">بيانات إتمام الطلب</h2><p class="checkout-intro">اكتب بياناتك عشان نسجل طلبك ونفتح واتساب برسالة جاهزة.</p>
+      <form id="checkoutForm" novalidate>
+        <label class="form-field"><span>الاسم بالكامل <i>*</i></span><input name="name" id="customerName" maxlength="100" required autocomplete="name" placeholder="اكتب اسمك"></label>
+        <label class="form-field"><span>رقم الهاتف <i>*</i></span><input name="phone" id="customerPhone" type="tel" maxlength="25" required autocomplete="tel" placeholder="01xxxxxxxxx"></label>
+        <label class="form-field"><span>البريد الإلكتروني <small>(اختياري)</small></span><input name="email" id="customerEmail" type="email" maxlength="160" autocomplete="email" placeholder="name@example.com"></label>
+        <div class="checkout-summary"><span>إجمالي المنتجات</span><strong id="checkoutTotal">0 ج.م</strong></div>
+        <div id="checkoutError" class="form-error" role="alert" hidden></div>
+        <button class="button button-primary button-full" id="submitOrder" type="submit"><svg class="whatsapp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.8a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.3-4.9a8.4 8.4 0 1 1 16.2-3.8Z"></path><path d="M8.4 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .3.1.4.4l.8 1.8c.1.2.1.4 0 .5l-.5.6c-.2.2-.2.4 0 .6.7 1.2 1.5 1.9 2.7 2.5.2.1.4.1.6-.1l.8-.9c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5s-.1 1-.7 1.4c-.5.4-1.1.6-1.8.5-1.1-.1-2.7-.8-4.2-2.2-1.4-1.3-2.3-2.9-2.5-4-.1-.7.2-1.4.6-1.9Z"></path></svg>تسجيل الطلب والانتقال لواتساب <span>↗</span></button>
+        <p class="micro-note">بالضغط على الزر، يتم حفظ الطلب أولاً ثم فتح واتساب. لا تحتاج إلى إنشاء حساب.</p>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
