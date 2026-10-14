@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f8fc">
+  <meta name="theme-color" content="#f7f7fa">
   <meta name="description" content="P90 SHOP — تسوق لأفضل الأحذية وبأفضل الأسعار.">
   <meta name="robots" content="index,follow">
   <title>P90 SHOP | تسوق لأفضل الأحذية وبأفضل الأسعار</title>
@@ -20,11 +20,9 @@
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <div class="page-texture" aria-hidden="true"></div>
   <header class="site-header">
     <a class="brand" href="/" aria-label="العودة إلى الصفحة الرئيسية">
-      <img src="/P90-LOGO-01.png" alt="P90 SHOP" class="brand-logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
-      <span class="brand-fallback" hidden>P90<span>SHOP</span></span>
+      <img src="/P90-LOGO-01.png" alt="" class="brand-logo">
     </a>
     <div class="header-actions">
       <label class="search-box" for="searchInput">
@@ -41,25 +39,12 @@
 
   <main>
     <section class="hero section-wrap">
-      <div class="hero-copy">
-        <span class="eyebrow"><i></i> STEP INTO YOUR STYLE</span>
-        <h1>خطوتك الجاية<br><span>تستاهل الأفضل.</span></h1>
-        <p>اختار ستايلك من تشكيلتنا، واكتشف أحذية تجمع بين الراحة والشكل المميز والسعر المناسب.</p>
-        <a class="button button-primary" href="#products">اكتشف التشكيلة <span aria-hidden="true">↙</span></a>
-        <div class="hero-notes"><span><b>01</b> اختار اللي يناسبك</span><span><b>02</b> اطلب بسهولة على واتساب</span></div>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
-        <div class="hero-tag tag-top">P90 / EVERYDAY</div>
-        <div class="hero-shape"><span>P</span><span>90</span></div>
-        <div class="hero-tag tag-bottom">OWN YOUR NEXT STEP <b>↗</b></div>
-        <div class="hero-spark spark-one"></div><div class="hero-spark spark-two"></div>
-      </div>
+      <h1>أفضل الأحذية بأفضل الأسعار</h1>
     </section>
 
     <section class="catalog section-wrap" id="products">
       <div class="section-heading">
-        <div><span class="eyebrow">THE COLLECTION</span><h2>اختار حذاءك.</h2><p>تفاصيل واضحة، اختيار أسهل، وطلب على مزاجك.</p></div>
+        <div><h2>التشكيلة</h2><p>اختر حذاءك المناسب واطلبه بسهولة</p></div>
         <div class="catalog-tools"><span class="products-count" id="productsCount">جاري تحميل المنتجات…</span><select id="sortSelect" aria-label="ترتيب المنتجات"><option value="newest">الأحدث أولاً</option><option value="price-low">السعر: الأقل أولاً</option><option value="price-high">السعر: الأعلى أولاً</option><option value="title">الاسم: أ–ي</option></select></div>
       </div>
       <div id="notice" class="notice" role="status" hidden></div>
@@ -67,19 +52,18 @@
         <div class="loading-card"><span class="loader"></span><p>بنجهز التشكيلة ليك…</p></div>
       </div>
     </section>
-
-    <section class="bottom-banner section-wrap">
-      <div class="banner-mark">P90<span>SHOP</span></div>
-      <div><span class="eyebrow">YOUR STYLE. YOUR STEP.</span><h2>ستايلك يبدأ من هنا.</h2><p>اختار منتجك، راجع طلبك، وكمل بسهولة من خلال واتساب.</p></div>
-      <a href="#products" class="button button-light">شوف المنتجات <span>↗</span></a>
-    </section>
   </main>
 
-  <footer class="site-footer section-wrap"><a href="/" class="footer-brand">P90 SHOP</a><span>تسوق لأفضل الأحذية وبأفضل الأسعار.</span><span>© <span id="yearNow"></span> P90 SHOP</span></footer>
+  <footer class="site-footer section-wrap">
+    <a class="footer-btn" href="https://wa.me/201126090244" target="_blank" rel="noopener">تواصل معنا</a>
+    <a class="footer-btn" href="/#products">تصفح المنتجات</a>
+    <a class="footer-btn" href="/policies">السياسات والتعليمات</a>
+  </footer>
 
   <div class="overlay" id="overlay" hidden></div>
   <aside class="cart-drawer" id="cartDrawer" aria-labelledby="cartTitle" aria-hidden="true">
     <div class="drawer-head"><div><span class="eyebrow">YOUR SELECTION</span><h2 id="cartTitle">سلة المشتريات <span id="drawerCount">(0)</span></h2></div><button class="icon-button" type="button" id="closeCart" aria-label="إغلاق السلة">×</button></div>
+    <div id="pendingOrders" class="pending-orders" role="status" hidden></div>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-footer"><div class="total-line"><span>الإجمالي</span><strong id="cartTotal">0 ج.م</strong></div><p>الأسعار المعروضة بالجنيه المصري. يتم تأكيد الطلب معاك عبر واتساب.</p><button class="button button-primary button-full" id="goCheckout" type="button">إكمال الطلب <span>↗</span></button></div>
   </aside>

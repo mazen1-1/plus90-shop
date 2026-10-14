@@ -4,7 +4,7 @@
   const state = { products: [], orders: [], toastTimer: null, submitting: false };
   const money = value => `${new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 }).format(Number(value || 0))} ج.م`;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
-  const placeholder = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#f0ebf8"/><text x="60" y="67" font-family="Arial" font-size="30" text-anchor="middle" font-weight="800" fill="#9b82e8">P90</text></svg>');
+  const placeholder = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#f0ebf8"/></svg>');
   const statusNames = { new:'جديد', confirmed:'مؤكد', completed:'مكتمل', cancelled:'ملغي' };
   function toast(message) { const el = $('#adminToast'); el.textContent = message; el.classList.add('show'); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(() => el.classList.remove('show'), 3000); }
   function globalMessage(message, warning = false) { const el = $('#globalMessage'); el.textContent = message; el.classList.toggle('warning', warning); el.hidden = !message; }
@@ -36,9 +36,6 @@
     catch (error) { globalMessage(error.message, true); }
   }
   function renderStats() {
-    $('#statProducts').textContent = state.products.length;
-    $('#statNewOrders').textContent = state.orders.filter(order => order.status === 'new').length;
-    $('#statOrders').textContent = state.orders.length;
     $('#tabProductCount').textContent = state.products.length;
     $('#tabOrderCount').textContent = state.orders.length;
     $('#sideProductCount').textContent = `${state.products.length} ITEMS`;
@@ -95,7 +92,7 @@
     state.submitting = true; $('#saveProductButton').disabled = true; $('#saveProductButton').innerHTML = '<span class="spinner" aria-hidden="true"></span> جارٍ الحفظ والرفع…';
     try {
       const result = await api('/api/admin/products', { method:'POST', body:form });
-      if (result.warning) globalMessage(result.warning, true); else globalMessage('تم حفظ المنتج بنجاح. إذا كان المتجر منشورًا على GitHub فقد يحتاج تحديث النسخة الثابتة قليلًا حتى يكتمل نشر Cloudflare.');
+      if (result.warning) globalMessage(result.warning, true); else globalMessage('تم حفظ المنتج بنجاح.');
       toast('تم حفظ المنتج بنجاح.'); resetProductForm(); await loadProducts();
     } catch (err) { error.textContent = err.message; error.hidden = false; }
     finally { state.submitting = false; $('#saveProductButton').disabled = false; $('#saveProductButton').innerHTML = 'نشر التعديلات <span>↗</span>'; }

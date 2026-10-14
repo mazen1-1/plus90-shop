@@ -47,3 +47,20 @@ export async function onRequestPost({ request, env }) {
     return jsonError('تعذر حفظ الطلب الآن. لم يتم تفريغ السلة؛ حاول مرة أخرى بعد قليل.', 500);
   }
 }
+
+// Public, read-only status lookup used by the storefront to know when the admin has
+// confirmed/completed an order (only then is the order removed from the customer's cart).
+// Returns the order code and status ONLY — never customer data.
+export async function onRequestGet({ request, env }) {
+  if (!env.DB) return jsonError('نظام الطلبات غير جاهز بعد.', 503);
+  const raw = new URL(request.url).searchParams.get('codes') || '';
+  const codes = [...new Set(raw.split(',').map(code => code.trim().toUpperCase()).filter(code => /^CL\d{4,10}$/.test(code)))].slice(0, 20);
+  if (!codes.length) return Response.json({ orders: [] });
+  try {
+    const placeholders = codes.map(() => '?').join(',');
+    const { results = [] } = await env.DB.prepare(`SELECT order_code, status FROM orders WHERE order_code IN (${placeholders})`).bind(...codes).all();
+    return Response.json({ orders: results.map(row => ({ orderCode: row.order_code, status: row.status })) });
+  } catch {
+    return jsonError('تعذر التحقق من حالة الطلبات.', 500);
+  }
+}

@@ -2,12 +2,45 @@
   'use strict';
   const $ = (selector) => document.querySelector(selector);
   const CART_KEY = 'plus90_cart_v1';
-  const state = { products: [], cart: readCart(), activeProduct: null, activeImage: 0, selectedSize: '', toastTimer: null };
+  const ORDERS_KEY = 'plus90_pending_orders_v1';
+  const DONE_STATUSES = ['confirmed', 'completed'];
+  const state = { products: [], cart: readCart(), pending: readPending(), activeProduct: null, activeImage: 0, selectedSize: '', toastTimer: null };
   const money = (amount) => `${new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 }).format(Number(amount || 0))} ج.م`;
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const placeholderImage = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8f5ff"/><stop offset="1" stop-color="#eae4f5"/></linearGradient></defs><rect width="600" height="600" fill="url(#g)"/><circle cx="300" cy="270" r="145" fill="#fff" opacity=".42"/><text x="300" y="310" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="92" fill="#9b82e8">P90</text><text x="300" y="365" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" letter-spacing="7" fill="#887c9d">ADD PRODUCT</text></svg>');
   function readCart() { try { const parsed = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); return Array.isArray(parsed) ? parsed.filter(x => x && typeof x.id === 'string' && Number.isFinite(Number(x.quantity))) : []; } catch { return []; } }
   function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(state.cart)); } catch { showToast('المتصفح لم يستطع حفظ السلة. تحقق من إعدادات الخصوصية.'); } renderCart(); }
+  function readPending() { try { const parsed = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); const limit = Date.now() - 30 * 24 * 60 * 60 * 1000; return Array.isArray(parsed) ? parsed.filter(o => o && /^CL\d{4,}$/.test(String(o.code)) && Array.isArray(o.items) && Number(o.createdAt) > limit) : []; } catch { return []; } }
+  function savePending() { try { localStorage.setItem(ORDERS_KEY, JSON.stringify(state.pending)); } catch {} renderPending(); }
+  function renderPending() { const box = $('#pendingOrders'); if (!box) return; if (!state.pending.length) { box.hidden = true; box.innerHTML = ''; return; } const codes = state.pending.map(o => `<b>${esc(o.code)}</b>`).join('، '); box.innerHTML = `طلبك ${codes} قيد المراجعة. ستبقى المنتجات في السلة حتى يتم تأكيد الطلب من الإدارة.`; box.hidden = false; }
+  // Removes only the items that belonged to a confirmed/completed order from the cart.
+  function removeOrderItemsFromCart(order) {
+    for (const snap of order.items) {
+      const key = `${snap.id}::${snap.size || ''}`; const line = state.cart.find(item => cartKey(item) === key); if (!line) continue;
+      line.quantity = Number(line.quantity) - Number(snap.quantity || 0);
+      if (line.quantity <= 0) state.cart = state.cart.filter(item => item !== line);
+    }
+  }
+  let checkingOrders = false;
+  async function checkPendingOrders() {
+    if (checkingOrders || !state.pending.length) return; checkingOrders = true;
+    try {
+      const response = await fetch(`/api/orders?codes=${encodeURIComponent(state.pending.map(o => o.code).join(','))}`, { headers: { Accept: 'application/json' } });
+      if (!response.ok) return;
+      const body = await response.json(); const statuses = new Map((body.orders || []).map(o => [o.orderCode, o.status]));
+      let cartChanged = false; let confirmed = 0; const remaining = [];
+      for (const order of state.pending) {
+        const status = statuses.get(order.code);
+        if (DONE_STATUSES.includes(status)) { removeOrderItemsFromCart(order); cartChanged = true; confirmed++; }
+        else if (status === 'cancelled' || status === undefined) { /* stop tracking; items stay in the cart */ }
+        else remaining.push(order);
+      }
+      state.pending = remaining; savePending();
+      if (cartChanged) { saveCart(); } 
+      if (confirmed) showToast('تم تأكيد طلبك، وتمت إزالته من السلة ✦');
+    } catch { /* offline: try again later */ }
+    finally { checkingOrders = false; }
+  }
   function imgFor(product, index = 0) { const images = Array.isArray(product?.images) ? product.images : []; return images[index] || images[0] || placeholderImage; }
   function cartEntries() { const map = new Map(state.products.map(p => [p.id, p])); return state.cart.map(item => ({ ...item, quantity: Math.max(1, Math.min(10, Number(item.quantity) || 1)), product: map.get(item.id) })).filter(item => item.product); }
   function cartCount() { return cartEntries().reduce((sum, item) => sum + item.quantity, 0); }
@@ -33,7 +66,7 @@
         setNotice('المتجر يحتاج إلى إكمال إعداد قاعدة البيانات في Cloudflare قبل عرض المنتجات. راجع ملف README_AR.md.');
       }
     }
-    renderProducts(); renderCart();
+    renderProducts(); renderCart(); checkPendingOrders();
   }
 
   function sortedFilteredProducts() {
@@ -68,6 +101,7 @@
   }
 
   function renderCart() {
+    renderPending();
     const entries = cartEntries(); const count = entries.reduce((sum, item) => sum + item.quantity, 0);
     $('#cartCount').textContent = count; $('#drawerCount').textContent = `(${count})`;
     $('#cartTotal').textContent = money(cartTotal()); $('#checkoutTotal').textContent = money(cartTotal());
@@ -84,7 +118,7 @@
   }
   function changeCart(key, delta) { const item = state.cart.find(x => cartKey(x) === key); if (!item) return; item.quantity = Number(item.quantity) + delta; if (item.quantity <= 0) state.cart = state.cart.filter(x => x !== item); else item.quantity = Math.min(10, item.quantity); saveCart(); }
   function removeCart(key) { state.cart = state.cart.filter(x => cartKey(x) !== key); saveCart(); }
-  function openCart() { $('#overlay').hidden = false; requestAnimationFrame(() => $('#overlay').classList.add('visible')); $('#cartDrawer').classList.add('open'); $('#cartDrawer').setAttribute('aria-hidden','false'); document.body.classList.add('lock-scroll'); }
+  function openCart() { checkPendingOrders(); $('#overlay').hidden = false; requestAnimationFrame(() => $('#overlay').classList.add('visible')); $('#cartDrawer').classList.add('open'); $('#cartDrawer').setAttribute('aria-hidden','false'); document.body.classList.add('lock-scroll'); }
   function closeCart() { $('#cartDrawer').classList.remove('open'); $('#cartDrawer').setAttribute('aria-hidden','true'); $('#overlay').hidden = true; document.body.classList.remove('lock-scroll'); }
   function openProduct(id) {
     const p = state.products.find(x => x.id === id); if (!p) return;
@@ -131,12 +165,13 @@
       const response = await fetch('/api/orders', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify({ name, phone, email, items:entries.map(item => ({ id:item.id, quantity:item.quantity, size:item.size || '' })) }) });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || 'لم نتمكن من تسجيل الطلب. حاول مرة أخرى.');
-      state.cart = []; saveCart(); closeCheckout();
+      state.pending.push({ code: body.orderCode, createdAt: Date.now(), items: entries.map(item => ({ id: item.id, size: item.size || '', quantity: item.quantity })) }); savePending(); closeCheckout();
       if (body.whatsappUrl) { window.location.href = body.whatsappUrl; } else { showToast(`تم تسجيل طلبك بالكود ${body.orderCode}`); }
     } catch (err) { error.textContent = err.message || 'حدث خطأ أثناء تسجيل الطلب. حاول مجددًا.'; error.hidden = false; }
     finally { button.disabled = false; button.innerHTML = '<svg class="whatsapp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.8a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.3-4.9a8.4 8.4 0 1 1 16.2-3.8Z"></path><path d="M8.4 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .3.1.4.4l.8 1.8c.1.2.1.4 0 .5l-.5.6c-.2.2-.2.4 0 .6.7 1.2 1.5 1.9 2.7 2.5.2.1.4.1.6-.1l.8-.9c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5s-.1 1-.7 1.4c-.5.4-1.1.6-1.8.5-1.1-.1-2.7-.8-4.2-2.2-1.4-1.3-2.3-2.9-2.5-4-.1-.7.2-1.4.6-1.9Z"></path></svg>تسجيل الطلب والانتقال لواتساب <span>↗</span>'; }
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeProduct(); closeCheckout(); closeCart(); } });
-  $('#yearNow').textContent = String(new Date().getFullYear());
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkPendingOrders(); });
+  setInterval(checkPendingOrders, 60000);
   loadProducts();
 })();
