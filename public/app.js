@@ -3,7 +3,7 @@
   const $ = (selector) => document.querySelector(selector);
   const CART_KEY = 'plus90_cart_v1';
   const ORDERS_KEY = 'plus90_pending_orders_v1';
-  const DONE_STATUSES = ['confirmed', 'completed'];
+  const DONE_STATUSES = ['confirmed', 'completed', 'cancelled'];
   const state = { products: [], cart: readCart(), pending: readPending(), activeProduct: null, activeImage: 0, selectedSize: '', toastTimer: null };
   const money = (amount) => `${new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 }).format(Number(amount || 0))} ج.م`;
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -12,8 +12,8 @@
   function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(state.cart)); } catch { showToast('المتصفح لم يستطع حفظ السلة. تحقق من إعدادات الخصوصية.'); } renderCart(); }
   function readPending() { try { const parsed = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); const limit = Date.now() - 30 * 24 * 60 * 60 * 1000; return Array.isArray(parsed) ? parsed.filter(o => o && /^CL\d{4,}$/.test(String(o.code)) && Array.isArray(o.items) && Number(o.createdAt) > limit) : []; } catch { return []; } }
   function savePending() { try { localStorage.setItem(ORDERS_KEY, JSON.stringify(state.pending)); } catch {} renderPending(); }
-  function renderPending() { const box = $('#pendingOrders'); if (!box) return; if (!state.pending.length) { box.hidden = true; box.innerHTML = ''; return; } const codes = state.pending.map(o => `<b>${esc(o.code)}</b>`).join('، '); box.innerHTML = `طلبك ${codes} قيد المراجعة. ستبقى المنتجات في السلة حتى يتم تأكيد الطلب من الإدارة.`; box.hidden = false; }
-  // Removes only the items that belonged to a confirmed/completed order from the cart.
+  function renderPending() { const box = $('#pendingOrders'); if (!box) return; if (!state.pending.length) { box.hidden = true; box.innerHTML = ''; return; } const codes = state.pending.map(o => `<b>${esc(o.code)}</b>`).join('، '); box.innerHTML = `طلبك ${codes} قيد المراجعة. ستبقى المنتجات في السلة حتى تتم مراجعة الطلب من الإدارة.`; box.hidden = false; }
+  // Removes only the items that belonged to an order the admin has finalized (confirmed / completed / cancelled).
   function removeOrderItemsFromCart(order) {
     for (const snap of order.items) {
       const key = `${snap.id}::${snap.size || ''}`; const line = state.cart.find(item => cartKey(item) === key); if (!line) continue;
@@ -32,12 +32,12 @@
       for (const order of state.pending) {
         const status = statuses.get(order.code);
         if (DONE_STATUSES.includes(status)) { removeOrderItemsFromCart(order); cartChanged = true; confirmed++; }
-        else if (status === 'cancelled' || status === undefined) { /* stop tracking; items stay in the cart */ }
+        else if (status === undefined) { /* order no longer exists: stop tracking, keep the cart */ }
         else remaining.push(order);
       }
       state.pending = remaining; savePending();
       if (cartChanged) { saveCart(); } 
-      if (confirmed) showToast('تم تأكيد طلبك، وتمت إزالته من السلة ✦');
+      if (confirmed) showToast('تمت مراجعة طلبك من الإدارة وإزالته من السلة ✦');
     } catch { /* offline: try again later */ }
     finally { checkingOrders = false; }
   }

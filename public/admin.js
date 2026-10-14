@@ -99,8 +99,8 @@
   }
   async function deleteProduct(id) {
     const product = state.products.find(p => p.id === id); if (!product) return;
-    if (!window.confirm(`هل تريد حذف المنتج «${product.title}» من المتجر؟\nسيتم إبقاء ملفات الصور داخل GitHub لتجنب حذف صورة مشتركة.`)) return;
-    try { const result = await api('/api/admin/products', { method:'DELETE', body:JSON.stringify({ id }) }); if (result.warning) globalMessage(result.warning, true); else globalMessage('تم حذف المنتج من المتجر.'); if ($('#productId').value === id) resetProductForm(); await loadProducts(); toast('تم حذف المنتج.'); }
+    if (!window.confirm(`هل تريد حذف المنتج «${product.title}» نهائيًا؟`)) return;
+    try { const result = await api('/api/admin/products', { method:'DELETE', body:JSON.stringify({ id }) }); if (result.warning) globalMessage(result.warning, true); else globalMessage('تم حذف المنتج وصوره نهائيًا.'); if ($('#productId').value === id) resetProductForm(); await loadProducts(); toast('تم حذف المنتج.'); }
     catch (error) { globalMessage(error.message, true); }
   }
   async function updateOrderStatus(id) {

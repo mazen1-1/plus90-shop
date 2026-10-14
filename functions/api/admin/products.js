@@ -1,5 +1,5 @@
 import { isAdmin, sameOrigin } from '../../_lib/admin-auth.js';
-import { githubConfig, uploadProductImages, verifyRepoImageUrls, syncProductsJson } from '../../_lib/github.js';
+import { githubConfig, uploadProductImages, verifyRepoImageUrls, syncProductsJson, deleteUnusedProductImages } from '../../_lib/github.js';
 
 const fail = (message, status = 400) => Response.json({ error: message }, { status });
 const parseArray = (value) => { try { const a = JSON.parse(value || '[]'); return Array.isArray(a) ? a : []; } catch { return []; } };
@@ -44,7 +44,7 @@ export async function onRequestPost({ request, env }) {
     const images = [...existingImages, ...uploadedImages].slice(0, 6);
     if (!images.length) return fail('ارفع صورة واحدة على الأقل للمنتج.');
     const now = new Date().toISOString();
-    const previous = await env.DB.prepare('SELECT id, created_at FROM products WHERE id = ?').bind(id).first();
+    const previous = await env.DB.prepare('SELECT id, created_at, images_json FROM products WHERE id = ?').bind(id).first();
     if (input.id && !previous) return fail('هذا المنتج لم يعد موجودًا. حدّث الصفحة ثم حاول مرة أخرى.', 404);
     if (previous) {
       await env.DB.prepare('UPDATE products SET code = ?, title = ?, description = ?, price = ?, images_json = ?, sizes_json = ?, updated_at = ? WHERE id = ?')
@@ -57,6 +57,12 @@ export async function onRequestPost({ request, env }) {
     let warning = '';
     try { await syncProductsJson(env, env.DB); }
     catch (error) { warning = `تم حفظ المنتج في قاعدة البيانات، لكن لم يتم تحديث نسخة JSON في GitHub. التفاصيل: ${String(error.message || '').slice(0, 180)}`; }
+    // Images the admin un-checked while editing are removed from GitHub too.
+    if (previous) {
+      const removed = parseArray(previous.images_json).filter(url => !images.includes(url));
+      try { await deleteUnusedProductImages(env, env.DB, removed); }
+      catch (error) { warning = `${warning ? warning + ' ' : ''}تم حفظ المنتج، لكن تعذّر حذف الصور المُزالة من GitHub: ${String(error.message || '').slice(0, 150)}`; }
+    }
     return Response.json({ ok: true, product: productRow(row), warning, github: { owner, repo, branch } }, { status: 200 });
   } catch (error) {
     const message = String(error.message || 'تعذر حفظ المنتج.').slice(0, 400);
@@ -72,12 +78,14 @@ export async function onRequestDelete({ request, env }) {
   try { body = await request.json(); } catch { return fail('معرّف المنتج غير صحيح.'); }
   const id = clean(body.id, 80);
   if (!id) return fail('معرّف المنتج مطلوب.');
-  const exists = await env.DB.prepare('SELECT id FROM products WHERE id = ?').bind(id).first();
+  const exists = await env.DB.prepare('SELECT id, images_json FROM products WHERE id = ?').bind(id).first();
   if (!exists) return fail('المنتج غير موجود.', 404);
   await env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
   let warning = '';
   try { await syncProductsJson(env, env.DB); }
   catch (error) { warning = `حُذف المنتج من المتجر، لكن تعذّر تحديث ملف JSON في GitHub: ${String(error.message || '').slice(0, 180)}`; }
-  // Product image files are intentionally retained in GitHub to avoid deleting a file still used by another product.
+  // Remove this product's image files from GitHub (the JSON mirror above no longer references them).
+  try { await deleteUnusedProductImages(env, env.DB, parseArray(exists.images_json)); }
+  catch (error) { warning = `${warning ? warning + ' ' : ''}حُذف المنتج، لكن تعذّر حذف صوره من GitHub: ${String(error.message || '').slice(0, 150)}`; }
   return Response.json({ ok: true, warning });
 }

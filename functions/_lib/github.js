@@ -106,6 +106,46 @@ export async function uploadProductImages(env, files) {
   return prepared.map(item => `https://raw.githubusercontent.com/${config.owner}/${config.repo}/${encodeURIComponent(config.branch)}/${item.path}`);
 }
 
+export async function deleteRepoFiles(env, paths) {
+  const config = githubConfig(env);
+  const existing = [];
+  for (const path of [...new Set(paths)]) {
+    if (!path.startsWith('public/assets/products/') || path.includes('..')) continue;
+    const check = await githubFetch(env, encodePath(path), { query: `?ref=${encodeURIComponent(config.branch)}` });
+    if (check.ok) existing.push(path);
+    else if (check.status !== 404) throw new Error(`تعذر التحقق من ملف الصورة في GitHub (${check.status}).`);
+  }
+  if (!existing.length) return 0;
+  const refResponse = await githubApiFetch(env, `git/ref/heads/${encodePath(config.branch)}`);
+  if (!refResponse.ok) throw new Error(`تعذر قراءة فرع GitHub (${refResponse.status}).`);
+  const latestCommitSha = (await refResponse.json()).object?.sha;
+  if (!latestCommitSha) throw new Error('لم يتم العثور على آخر commit في فرع GitHub.');
+  const commitResponse = await githubApiFetch(env, `git/commits/${encodeURIComponent(latestCommitSha)}`);
+  if (!commitResponse.ok) throw new Error(`تعذر قراءة شجرة ملفات GitHub (${commitResponse.status}).`);
+  const commitData = await commitResponse.json();
+  const treeResponse = await githubApiFetch(env, 'git/trees', { method: 'POST', body: { base_tree: commitData.tree?.sha, tree: existing.map(path => ({ path, mode: '100644', type: 'blob', sha: null })) } });
+  if (!treeResponse.ok) throw new Error(`تعذر تجهيز حذف الصور في GitHub (${treeResponse.status}).`);
+  const treeData = await treeResponse.json();
+  const newCommitResponse = await githubApiFetch(env, 'git/commits', { method: 'POST', body: { message: `Delete ${existing.length} PLUS90 product image${existing.length === 1 ? '' : 's'}`, tree: treeData.sha, parents: [latestCommitSha] } });
+  if (!newCommitResponse.ok) throw new Error(`تعذر إنشاء commit لحذف الصور (${newCommitResponse.status}).`);
+  const newCommit = await newCommitResponse.json();
+  const updateRefResponse = await githubApiFetch(env, `git/refs/heads/${encodePath(config.branch)}`, { method: 'PATCH', body: { sha: newCommit.sha, force: false } });
+  if (!updateRefResponse.ok) throw new Error(`تعذر تحديث فرع GitHub بعد حذف الصور (${updateRefResponse.status}).`);
+  return existing.length;
+}
+
+// Deletes image files from GitHub, skipping any file still used by another product.
+export async function deleteUnusedProductImages(env, db, imageUrls) {
+  const candidates = (imageUrls || []).filter(Boolean);
+  if (!candidates.length || !verifyRepoImageUrls(env, candidates)) return 0;
+  const { results = [] } = await db.prepare('SELECT images_json FROM products').all();
+  const inUse = new Set(results.flatMap(row => parseArray(row.images_json)));
+  const { owner, repo, branch } = githubConfig(env);
+  const prefix = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/`;
+  const paths = candidates.filter(url => !inUse.has(url)).map(url => url.slice(prefix.length));
+  return paths.length ? deleteRepoFiles(env, paths) : 0;
+}
+
 export function verifyRepoImageUrls(env, urls) {
   const { owner, repo, branch } = githubConfig(env);
   const prefix = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/public/assets/products/`;
