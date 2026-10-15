@@ -1,7 +1,25 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-15T18:58:51.570Z",
+  "updatedAt": "2026-10-15T18:59:43.993Z",
   "products": [
+    {
+      "id": "2324f7ee-c5e0-48a4-b6e0-0db8d3175d67",
+      "code": "P90-7E5D98",
+      "title": "حذاء رياضي كاجوال للرجال من الجلد باللون الأسود",
+      "description": "وصف ااالل",
+      "price": 700,
+      "images": [
+        "https://raw.githubusercontent.com/mazen1-1/plus90-shop/main/public/assets/products/1792090780032-1444c9a2bcde40.webp"
+      ],
+      "sizes": [
+        "46",
+        "47",
+        "48",
+        "49"
+      ],
+      "createdAt": "2026-10-15T18:59:43.831Z",
+      "updatedAt": "2026-10-15T18:59:43.831Z"
+    },
     {
       "id": "61f4ee19-fd6a-43a9-9332-99ea26e805f7",
       "code": "P90-524DDE",
