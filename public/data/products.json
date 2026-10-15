@@ -1,7 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-15T18:30:17.310Z",
+  "updatedAt": "2026-10-15T18:31:19.291Z",
   "products": [
+    {
+      "id": "e92244f0-a676-4e3d-bda7-3f5c5f100f21",
+      "code": "P90-8092AE",
+      "title": "حذاء رياضي كاجوال للرجال من الجلد باللون الأبيض",
+      "description": "وصف تالالاتلالنخجست",
+      "price": 900,
+      "images": [
+        "https://raw.githubusercontent.com/mazen1-1/plus90-shop/main/public/assets/products/1792089075364-30ac1050f30941.webp"
+      ],
+      "sizes": [],
+      "createdAt": "2026-10-15T18:31:19.191Z",
+      "updatedAt": "2026-10-15T18:31:19.191Z"
+    },
     {
       "id": "61f4ee19-fd6a-43a9-9332-99ea26e805f7",
       "code": "P90-524DDE",
