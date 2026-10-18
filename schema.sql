@@ -1,7 +1,3 @@
--- Run this entire file once in the Cloudflare D1 console.
--- Product catalog source of truth and customer orders are stored in D1.
--- public/data/products.json is kept as a readable mirror in the GitHub repo.
-
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS products (
